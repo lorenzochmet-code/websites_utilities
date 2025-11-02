@@ -1,82 +1,107 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Occhi responsive</title>
 <style>
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: url("./img/sl_logo.png") center/cover no-repeat;
-  background-size: auto;
-  position: relative;
-  font-family: sans-serif;
-  color: white;
-  text-align: center;
-}
+  :root{
+    /* dimensioni fluide */
+    --eye: clamp(48px, 10vw, 120px);
+    --pupil: calc(var(--eye) * 0.38);
+    --gap: clamp(16px, 6vw, 48px);
+    --pad: clamp(12px, 4vw, 32px);
+  }
 
-.testo-alto {
-  position: absolute;
-  top: 30px;
-  width: 100%;
-  font-size: 2rem;
-  font-weight: bold;
-}
+  /* tela responsive con rapporto fisso: cambia qui se serve 16/9, 4/3, 9/16 */
+  .frame{
+    aspect-ratio: 16 / 9;
+    width: min(100vw, 1000px);
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    border: 0;
+    /* immagine di sfondo fluida */
+    background: url("img/sl_logo.png") center/cover no-repeat;
+  }
 
-.testo-basso {
-  position: absolute;
-  bottom: 30px;
-  width: 100%;
-  font-size: 1.5rem;
-}
+  /* testo alto/basso con padding sicuro su iPhone */
+  .top, .bottom{
+    position: absolute; left: 0; width: 100%;
+    padding: calc(var(--pad) + env(safe-area-inset-top)) var(--pad);
+    color: #fff;
+    font: 700 clamp(18px, 4vw, 40px)/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0,0,0,.35);
+  }
+  .top{ top: 0; }
+  .bottom{
+    bottom: 0;
+    padding: var(--pad) calc(var(--pad) + env(safe-area-inset-bottom));
+    font-weight: 600;
+    font-size: clamp(14px, 3.2vw, 28px);
+  }
 
-.occhi {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-}
+  /* occhi centrati e scalabili */
+  .eyes{
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+  }
+  .row{
+    display: flex; align-items: center; justify-content: center; gap: var(--gap);
+    transform: translateZ(0); /* render più fluido */
+  }
+  .eye{
+    width: var(--eye); height: var(--eye);
+    background: #fff; border: max(2px, calc(var(--eye)*0.05)) solid #222;
+    border-radius: 50%; position: relative;
+    box-shadow: 0 3px 8px rgba(0,0,0,.25) inset;
+  }
+  .pupil{
+    width: var(--pupil); height: var(--pupil);
+    background:#222; border-radius:50%;
+    position:absolute; top:50%; left:50%;
+    translate: -50% -50%;
+    transition: transform .05s linear;
+  }
 
-.eye {
-  width: 80px;
-  height: 80px;
-  background: white;
-  border: 4px solid #333;
-  border-radius: 50%;
-  position: relative;
-}
-.pupil {
-  width: 30px;
-  height: 30px;
-  background: #333;
-  border-radius: 50%;
-  position: absolute;
-  top: 25px;
-  left: 25px;
-  transition: transform 0.05s linear;
-}
+  /* spazi più stretti su telefoni */
+  @media (max-width: 480px){
+    :root{ --gap: clamp(12px, 5vw, 24px); }
+  }
+
+  /* rispetto accessibilità: niente inseguimento se l’utente riduce le animazioni */
+  @media (prefers-reduced-motion: reduce){
+    .pupil{ transition: none; }
+    body{ scroll-behavior: auto; }
+  }
 </style>
 </head>
 <body>
-  <div class="occhi">
-    <div class="eye"><div class="pupil"></div></div>
-    <div class="eye"><div class="pupil"></div></div>
+  <div class="frame">
+    <div class="eyes">
+      <div class="row">
+        <div class="eye"><div class="pupil"></div></div>
+        <div class="eye"><div class="pupil"></div></div>
+      </div>
+    </div>
+
   </div>
 
 <script>
-document.addEventListener('mousemove', e => {
-  document.querySelectorAll('.pupil').forEach(p => {
-    const r = p.parentElement.getBoundingClientRect();
-    const x = e.clientX - (r.left + r.width / 2);
-    const y = e.clientY - (r.top + r.height / 2);
-    const a = Math.atan2(y, x);
-    const d = Math.min(15, Math.hypot(x, y) / 10);
-    p.style.transform = `translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`;
-  });
-});
+  // inseguimento proporzionale alla dimensione dell'occhio
+  document.addEventListener('mousemove', e => {
+    document.querySelectorAll('.eye').forEach(eye => {
+      const p = eye.querySelector('.pupil');
+      const r = eye.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width/2);
+      const dy = e.clientY - (r.top  + r.height/2);
+      const a = Math.atan2(dy, dx);
+      const max = r.width * 0.22; // raggio utile in funzione della grandezza
+      const d = Math.min(max, Math.hypot(dx, dy) * 0.2);
+      p.style.transform = `translate(${Math.cos(a)*d}px, ${Math.sin(a)*d}px)`;
+    });
+  }, {passive:true});
 </script>
 </body>
 </html>
