@@ -5,16 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body {
+  margin: 0;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: #f2f2f2;
+  background: url("sl_logo.png") center/cover no-repeat;
+  background-size: auto;
+  position: relative;
+  font-family: sans-serif;
+  color: white;
+  text-align: center;
 }
+
+.testo-alto {
+  position: absolute;
+  top: 30px;
+  width: 100%;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.testo-basso {
+  position: absolute;
+  bottom: 30px;
+  width: 100%;
+  font-size: 1.5rem;
+}
+
+.occhi {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+}
+
 .eye {
   width: 80px;
   height: 80px;
-  margin: 10px;
   background: white;
   border: 4px solid #333;
   border-radius: 50%;
@@ -33,8 +61,10 @@ body {
 </style>
 </head>
 <body>
-  <div class="eye"><div class="pupil"></div></div>
-  <div class="eye"><div class="pupil"></div></div>
+  <div class="occhi">
+    <div class="eye"><div class="pupil"></div></div>
+    <div class="eye"><div class="pupil"></div></div>
+  </div>
 
 <script>
 document.addEventListener('mousemove', e => {
@@ -42,9 +72,9 @@ document.addEventListener('mousemove', e => {
     const r = p.parentElement.getBoundingClientRect();
     const x = e.clientX - (r.left + r.width / 2);
     const y = e.clientY - (r.top + r.height / 2);
-    const angle = Math.atan2(y, x);
-    const dist = Math.min(15, Math.hypot(x, y) / 10);
-    p.style.transform = `translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist}px)`;
+    const a = Math.atan2(y, x);
+    const d = Math.min(15, Math.hypot(x, y) / 10);
+    p.style.transform = `translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`;
   });
 });
 </script>
