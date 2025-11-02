@@ -5,90 +5,99 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Occhi responsive</title>
 <style>
-  :root{
-  --scale: 1.25;                    /* ← aumenta per ingrandire tutto (1.0–1.6) */
-  --eye-base: clamp(32px, 6vw, 80px);
-  --eye: calc(var(--eye-base) * var(--scale));
-  --pupil: calc(var(--eye) * 0.38);
-  --gap-base: clamp(12px, 4vw, 32px);
-  --gap: calc(var(--gap-base) * var(--scale));
-  --pad: clamp(12px, 4vw, 32px);
-  }
+    html,body{height:100%;margin:0;overflow:hidden}
+    *{box-sizing:border-box}
 
+    :root{
+    --eye: clamp(32px, 6vw, 80px);
+    --pupil: calc(var(--eye)*0.38);
+    --gap: clamp(12px, 4vw, 32px);
+    --pad: clamp(12px, 4vw, 32px);
+    }
+
+    /* il contenitore prende altezza dall'aspect-ratio impostato via JS */
     .frame{
-    /* invece di aspect-ratio fisso + width */
     width: 100%;
-    height: clamp(480px, 90vh, 1000px);
+    max-width: 1000px;
     margin: 0 auto;
     position: relative;
     overflow: hidden;
-    background: url("img/sl_logo.png") center/contain no-repeat;
+    background:#000; /* colore bande se servono */
     }
 
+    /* immagine sempre intera */
+    .bg{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit: contain;   /* mostra TUTTA l’immagine, nessun taglio */
+    object-position: center;
+    pointer-events:none;
+    }
 
-  html, body { height:100%; margin:0; padding:0; }
-  * { box-sizing: border-box; }
+    /* occhi centrati */
+    .eyes{position:absolute; inset:0; display:grid; place-items:center}
+    .row{display:flex; gap:var(--gap); align-items:center; justify-content:center}
+    .eye{width:var(--eye); height:var(--eye); background:#fff; border:max(2px, calc(var(--eye)*0.05)) solid #222; border-radius:50%; position:relative; box-shadow:0 3px 8px rgba(0,0,0,.25) inset}
+    .pupil{width:calc(var(--eye)*0.38); height:calc(var(--eye)*0.38); background:#222; border-radius:50%; position:absolute; top:50%; left:50%; translate:-50% -50%; transition:transform .05s linear}
 
-  /* tela responsive con rapporto fisso: cambia qui se serve 16/9, 4/3, 9/16 */
-  .frame{
-  aspect-ratio: 16 / 9;
-  width: min(100%, 1000px);   /* <— invece di 100vw */
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden;
-  background: url("img/sl_logo.png") center/contain no-repeat;
-  }
+    /* occhi centrati e scalabili */
+    .eyes{
+        position: absolute; inset: 0;
+        display: grid; place-items: center;
+    }
+    .row{
+        display: flex; align-items: center; justify-content: center; gap: var(--gap);
+        transform: translateZ(0); /* render più fluido */
+    }
+    .eye{
+        width: var(--eye); height: var(--eye);
+        background: #fff; border: max(2px, calc(var(--eye)*0.05)) solid #222;
+        border-radius: 50%; position: relative;
+        box-shadow: 0 3px 8px rgba(0,0,0,.25) inset;
+    }
+    .pupil{
+        width: var(--pupil); height: var(--pupil);
+        background:#222; border-radius:50%;
+        position:absolute; top:50%; left:50%;
+        translate: -50% -50%;
+        transition: transform .05s linear;
+    }
 
-  html, body { overflow: hidden; }
+    /* spazi più stretti su telefoni */
+    @media (max-width: 480px){
+        :root{ --gap: clamp(12px, 5vw, 24px); }
+    }
 
-  /* occhi centrati e scalabili */
-  .eyes{
-    position: absolute; inset: 0;
-    display: grid; place-items: center;
-  }
-  .row{
-    display: flex; align-items: center; justify-content: center; gap: var(--gap);
-    transform: translateZ(0); /* render più fluido */
-  }
-  .eye{
-    width: var(--eye); height: var(--eye);
-    background: #fff; border: max(2px, calc(var(--eye)*0.05)) solid #222;
-    border-radius: 50%; position: relative;
-    box-shadow: 0 3px 8px rgba(0,0,0,.25) inset;
-  }
-  .pupil{
-    width: var(--pupil); height: var(--pupil);
-    background:#222; border-radius:50%;
-    position:absolute; top:50%; left:50%;
-    translate: -50% -50%;
-    transition: transform .05s linear;
-  }
-
-  /* spazi più stretti su telefoni */
-  @media (max-width: 480px){
-    :root{ --gap: clamp(12px, 5vw, 24px); }
-  }
-
-  /* rispetto accessibilità: niente inseguimento se l’utente riduce le animazioni */
-  @media (prefers-reduced-motion: reduce){
-    .pupil{ transition: none; }
-    body{ scroll-behavior: auto; }
-  }
+    /* rispetto accessibilità: niente inseguimento se l’utente riduce le animazioni */
+    @media (prefers-reduced-motion: reduce){
+        .pupil{ transition: none; }
+        body{ scroll-behavior: auto; }
+    }
 </style>
 </head>
 <body>
   <div class="frame">
-    <div class="eyes">
-      <div class="row">
-        <div class="eye"><div class="pupil"></div></div>
-        <div class="eye"><div class="pupil"></div></div>
-      </div>
+  <img class="bg" src="img/sl_logo.png" alt="">
+  <div class="eyes">
+    <div class="row">
+      <div class="eye"><div class="pupil"></div></div>
+      <div class="eye"><div class="pupil"></div></div>
     </div>
-
   </div>
+</div>
 
 <script>
-  // inseguimento proporzionale alla dimensione dell'occhio
+  // 1) imposta aspect-ratio = width/height reali dell’immagine
+  const img = document.querySelector('.bg');
+  const frame = document.querySelector('.frame');
+  function setRatio(){
+    if (img.naturalWidth && img.naturalHeight){
+      frame.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
+    }
+  }
+  if (img.complete) setRatio(); else img.addEventListener('load', setRatio);
+
+  // 2) occhi che seguono il mouse
   document.addEventListener('mousemove', e => {
     document.querySelectorAll('.eye').forEach(eye => {
       const p = eye.querySelector('.pupil');
@@ -96,11 +105,12 @@
       const dx = e.clientX - (r.left + r.width/2);
       const dy = e.clientY - (r.top  + r.height/2);
       const a = Math.atan2(dy, dx);
-      const max = r.width * 0.22; // raggio utile in funzione della grandezza
+      const max = r.width * 0.22;
       const d = Math.min(max, Math.hypot(dx, dy) * 0.2);
       p.style.transform = `translate(${Math.cos(a)*d}px, ${Math.sin(a)*d}px)`;
     });
   }, {passive:true});
 </script>
+
 </body>
 </html>
