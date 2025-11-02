@@ -6,11 +6,25 @@
 <title>Occhi responsive</title>
 <style>
   :root{
-  --eye: clamp(32px, 6vw, 80px);   /* prima era 48px,10vw,120px */
+  --scale: 1.25;                    /* ← aumenta per ingrandire tutto (1.0–1.6) */
+  --eye-base: clamp(32px, 6vw, 80px);
+  --eye: calc(var(--eye-base) * var(--scale));
   --pupil: calc(var(--eye) * 0.38);
-  --gap: clamp(12px, 4vw, 32px);
-  --pad: clamp(12px, 4vw, 32px); 
-}
+  --gap-base: clamp(12px, 4vw, 32px);
+  --gap: calc(var(--gap-base) * var(--scale));
+  --pad: clamp(12px, 4vw, 32px);
+  }
+
+    .frame{
+    /* invece di aspect-ratio fisso + width */
+    width: 100%;
+    height: clamp(480px, 90vh, 1000px);
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    background: url("img/sl_logo.png") center/contain no-repeat;
+    }
+
 
   html, body { height:100%; margin:0; padding:0; }
   * { box-sizing: border-box; }
@@ -26,24 +40,6 @@
   }
 
   html, body { overflow: hidden; }
-
-
-  /* testo alto/basso con padding sicuro su iPhone */
-  .top, .bottom{
-    position: absolute; left: 0; width: 100%;
-    padding: calc(var(--pad) + env(safe-area-inset-top)) var(--pad);
-    color: #fff;
-    font: 700 clamp(18px, 4vw, 40px)/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    text-align: center;
-    text-shadow: 0 2px 4px rgba(0,0,0,.35);
-  }
-  .top{ top: 0; }
-  .bottom{
-    bottom: 0;
-    padding: var(--pad) calc(var(--pad) + env(safe-area-inset-bottom));
-    font-weight: 600;
-    font-size: clamp(14px, 3.2vw, 28px);
-  }
 
   /* occhi centrati e scalabili */
   .eyes{
