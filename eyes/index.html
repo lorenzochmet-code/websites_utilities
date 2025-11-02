@@ -6,24 +6,27 @@
 <title>Occhi responsive</title>
 <style>
   :root{
-    /* dimensioni fluide */
-    --eye: clamp(48px, 10vw, 120px);
-    --pupil: calc(var(--eye) * 0.38);
-    --gap: clamp(16px, 6vw, 48px);
-    --pad: clamp(12px, 4vw, 32px);
-  }
+  --eye: clamp(32px, 6vw, 80px);   /* prima era 48px,10vw,120px */
+  --pupil: calc(var(--eye) * 0.38);
+  --gap: clamp(12px, 4vw, 32px);
+  --pad: clamp(12px, 4vw, 32px); 
+}
+
+  html, body { height:100%; margin:0; padding:0; }
+  * { box-sizing: border-box; }
 
   /* tela responsive con rapporto fisso: cambia qui se serve 16/9, 4/3, 9/16 */
   .frame{
-    aspect-ratio: 16 / 9;
-    width: min(100vw, 1000px);
-    margin: 0 auto;
-    position: relative;
-    overflow: hidden;
-    border: 0;
-    /* immagine di sfondo fluida */
-    background: url("img/sl_logo.png") center/cover no-repeat;
+  aspect-ratio: 16 / 9;
+  width: min(100%, 1000px);   /* <— invece di 100vw */
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  background: url("img/sl_logo.png") center/contain no-repeat;
   }
+
+  html, body { overflow: hidden; }
+
 
   /* testo alto/basso con padding sicuro su iPhone */
   .top, .bottom{
